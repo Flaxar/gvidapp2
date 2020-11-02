@@ -1,8 +1,10 @@
 # gvid_app2
 
-GVID APPPPPP
+Aplikace inspirována GvidApp s přídavkem Google Classroom.
 
 ## Websites:
-www.skolaonline.cz
+www.skolaonline.cz - známky, rozvrh
 
-www.jidelna.gvid.cz
+www.jidelna.gvid.cz - jídla
+
+www.classroom.google.com - úkoly, suply
