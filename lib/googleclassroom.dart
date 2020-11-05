@@ -222,7 +222,7 @@ class ClassroomWebLoad {
                 c.name, // název třídy, které se úkol týká
                 new DateTime(
                     cw.dueDate?.year ?? 2199, cw.dueDate?.month ?? 12, cw.dueDate?.day ?? 31,
-                    cw.dueTime?.hours ?? 23, cw.dueTime?.minutes ?? 59)));
+                    cw.dueTime?.hours ?? 0, cw.dueTime?.minutes ?? 59)));
           }
           //print("Jsem tu 1 $ret");
         }
@@ -270,6 +270,7 @@ ListTile _classroomTile(UkolyData d) {
 
   var now = DateTime.now();
   var diff = d.termin_odevzdani.difference(now);
+  var times = d.termin_odevzdani;
 
   var cele_dny = (diff.inHours / 24).toInt();
   var cele_hodiny = diff.inHours - 24*cele_dny;
@@ -305,6 +306,13 @@ ListTile _classroomTile(UkolyData d) {
     zbyva_txt += "Již mělo být odevzdáno";
   }
 
+  var msgDate;
+  if(times.hour == 22) {
+    msgDate = DateFormat('dd. MM. yyyy').format(d.termin_odevzdani);
+  } else {
+    msgDate = DateFormat('dd. MM. yyyy kk:mm').format(d.termin_odevzdani);
+  }
+
   return ListTile(
     tileColor: Color.fromRGBO(61, 88, 133, 0.3),
     dense: false,
@@ -313,7 +321,7 @@ ListTile _classroomTile(UkolyData d) {
           fontWeight: FontWeight.w500,
           fontSize: 20,
         )),
-    subtitle: Text("${d.trida}, max. ${d.maxBodu} bodů\n\n$zbyva_txt (do ${DateFormat('dd. MM. yyyy kk:mm').format(d.termin_odevzdani)})"),
+    subtitle: Text("${d.trida}\n\n$zbyva_txt ($msgDate)"),
 
     // leading: Icon(
     //   icon,
