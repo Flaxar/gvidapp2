@@ -3,7 +3,6 @@ import 'package:gvid_app2/webLoader.dart';
 import 'package:gvid_app2/client.dart';
 import 'package:gvid_app2/retrofit/restICanteen.dart';
 import 'package:preferences/preferences.dart';
-import 'notifications.dart';
 
 final client = Client();
 

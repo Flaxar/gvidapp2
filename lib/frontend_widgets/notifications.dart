@@ -32,16 +32,6 @@ Future<bool> initNotification() async {
       onSelectNotification: selectNotification);
 }
 
-tz.TZDateTime _nextInstanceOfTenAM() {
-  final tz.TZDateTime now = tz.TZDateTime.now(tz.local);
-  tz.TZDateTime scheduledDate = now.add(Duration(seconds: 5));
-  // tz.TZDateTime(tz.local, now.year, now.month, now.day, now.hour, now.minute, now.second);
-  // if (scheduledDate.isBefore(now)) {
-  //   scheduledDate = scheduledDate.add(const Duration(seconds: 5));
-  // }
-  return scheduledDate;
-}
-
 Future<void> configureLocalTimeZone() async {
   tz.initializeTimeZones();
   tz.setLocalLocation(tz.getLocation("Europe/Prague"));

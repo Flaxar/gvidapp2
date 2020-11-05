@@ -1,10 +1,8 @@
 import 'dart:core';
-import 'dart:convert';
 import 'package:intl/intl.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 // every API must be enabled via https://console.developers.google.com/apis/api/classroom.googleapis.com/overview?project=gvid-app, otherwise it will not be available
@@ -135,12 +133,12 @@ ListTile _suplyTile(SuplyData d) {
   );
 }
 
-launchWeb(String URL) async
+launchWeb(String url) async
 {
-  if (await canLaunch(URL)) {
-    await launch(URL);
+  if (await canLaunch(url)) {
+    await launch(url);
   } else {
-    throw 'Could not launch $URL';
+    throw 'Could not launch $url';
   }
 }
 
@@ -208,7 +206,7 @@ class ClassroomWebLoad {
           var res = await classroomApi.courses.courseWork.studentSubmissions
               .list(c.id, cw.id, states: ['TURNED_IN', 'RETURNED']);
           //print("e");
-          for (var s in res?.studentSubmissions ?? []) { // stav odevzdání úkolu
+          for (var _ in res?.studentSubmissions ?? []) { // stav odevzdání úkolu
             odevzdano = true;
             break; // netřeba dál testovat
           }
@@ -287,13 +285,13 @@ ListTile _classroomTile(UkolyData d) {
     } else {
       zbyva_txt += "den";
     }
-  };
+  }
   if (cele_hodiny > 0) {
     if (zbyva_txt == '') {
       zbyva_txt += "Odevzdat za ";
     } else {
       zbyva_txt += " a ";
-    };
+    }
     zbyva_txt += "$cele_hodiny ";
     if (cele_hodiny >= 5) {
       zbyva_txt += "hodin";
@@ -302,7 +300,7 @@ ListTile _classroomTile(UkolyData d) {
     } else {
       zbyva_txt += "hodinu";
     }
-  };
+  }
   if (zbyva_txt == '') {
     zbyva_txt += "Již mělo být odevzdáno";
   }

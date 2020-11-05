@@ -11,8 +11,6 @@ import 'settings.dart';
 import 'package:preferences/preferences.dart';
 import 'google_signin/sign_in.dart';
 import 'frontend_widgets/notifications.dart';
-import 'package:timezone/data/latest.dart' as tz;
-import 'package:timezone/timezone.dart' as tz;
 import 'package:path_provider/path_provider.dart';
 
 final client = Client();
@@ -128,7 +126,7 @@ class _MyHomePageState extends State<MyHomePage> {
     if (_currentIndex == null) {  // těsně po spuštění, dokud si uživatel nic nezvolil, ani se nepoužila hodnota z nastaveni
       // načte se uživatelem definovaná výchozí stránka:
       _currentIndex = PrefService.getInt('home_scr') ?? 2; // 2 == suplování, viz settings.dart, pro případ že uživatel ještě nevlezl do nastavení, a home_scr není definován
-    };
+    }
 
     return Scaffold(
       backgroundColor: Colors.grey[850],
