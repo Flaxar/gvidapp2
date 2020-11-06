@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'client.dart';
@@ -10,8 +8,6 @@ import 'googleclassroom.dart';
 import 'settings.dart';
 import 'package:preferences/preferences.dart';
 import 'google_signin/sign_in.dart';
-import 'frontend_widgets/notifications.dart';
-import 'package:path_provider/path_provider.dart';
 
 final client = Client();
 
@@ -79,14 +75,8 @@ class _MyHomePageState extends State<MyHomePage> {
         Container( //
           margin: EdgeInsets.symmetric(vertical: 0, horizontal: 5),
           alignment: Alignment.center,
-          child: ListView(
-              shrinkWrap: true,
-              children: [
-                addVerticalMargin(5),
-                Foods(),
-              ]
-          ),
-        ),//tady pak přijde rozvrh
+          child: Foods(),
+        ),
       ],
     ),
 

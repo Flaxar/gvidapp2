@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gvid_app2/main.dart';
 import 'package:gvid_app2/webLoader.dart';
 import 'package:gvid_app2/client.dart';
 import 'package:gvid_app2/retrofit/restICanteen.dart';
@@ -14,7 +15,7 @@ class Foods extends WebLoader<List<FoodOffer>> {
       return client.iCanteen.getWeek();
     }
     final foodOfferArray = List<FoodOffer>();
-    for(final day in getWeek()) {
+    for(final day in getWeekdays()) {
       foodOfferArray.add(await client.iCanteen.getDay(day));
     }
     return foodOfferArray;
@@ -31,7 +32,14 @@ class Foods extends WebLoader<List<FoodOffer>> {
         ));
       }
     }
-    return Column(children: list);
+    // empty listview with shrinkWrap set to true trows an error
+    return (list.isEmpty) ? ListView() : ListView(
+      shrinkWrap: true,
+      children: [
+        addVerticalMargin(5),
+        Column(children: list)
+      ]
+    );
   }
 
   @override
@@ -165,7 +173,7 @@ DateTime getNearestMonday() {
   return monday;
 }
 
-List<DateTime> getWeek() {
+List<DateTime> getWeekdays() {
   DateTime monday = getNearestMonday();
   List<DateTime> week = [];
 

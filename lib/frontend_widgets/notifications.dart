@@ -1,7 +1,6 @@
 import 'dart:io';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:gvid_app2/frontend_widgets/schedule.dart';
-import 'package:preferences/preference_service.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 import 'package:gvid_app2/retrofit/restSchoolOnline.dart';
