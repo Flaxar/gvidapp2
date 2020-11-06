@@ -80,27 +80,7 @@ class _SettingsPageState extends State<SettingsPage> {
           thickness: 3,
         ),
 
-
-      PreferenceTitle(
-          'Notifikace:',
-      ),
-
-        PreferencePageLink(
-            'Notifikace',
-            trailing: Icon(Icons.keyboard_arrow_right),
-            page: PreferencePage([
-                SwitchPreference("Normální notifikace", "nor_notif"),
-                //SwitchPreference("Korona notifikace", "kor_notif")
-            ])
-        ),
-
-        Divider(
-          thickness: 3,
-        ),
-
-      PreferenceTitle(
-        'Ostatní:',
-      ),
+        // Notifications are controlled on demand, check commit logs
 
         DropdownPreference(
             "Domovská obrazovka",
