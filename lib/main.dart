@@ -22,17 +22,6 @@ void main() async {
 
   await signInWithGoogle(null, true);
 
-  final directory = await getApplicationDocumentsDirectory();
-  if(PrefService.getBool('nor_notif')
-      && await File("${directory.path}/calendar.json").exists()) {
-    initNotification();
-    await configureLocalTimeZone();
-    Notifications notifications = new Notifications();
-    await notifications.loadSchedule();
-    await notifications.scheduleWeeksNotifications();
-  }
-
-
   runApp(MyApp());
 }
 

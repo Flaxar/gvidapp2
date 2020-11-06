@@ -7,26 +7,26 @@ import 'package:gvid_app2/retrofit/restSchoolOnline.dart';
 import 'package:preferences/preferences.dart';
 import 'package:path_provider/path_provider.dart';
 
+import 'notifications.dart';
 
 final client = Client();
 
 class Schedule extends WebLoader<List<List<Subject>>> {
   @override
   Future<List<List<Subject>>> calculation() async {
-    final hasLogged = await client.schoolOnline.login(PrefService.getString('sol_login'), PrefService.getString('sol_password'));
+    final hasLogged = await client.schoolOnline.login(
+        PrefService.getString('sol_login'),
+        PrefService.getString('sol_password')
+    );
     if (!hasLogged) {
       return Future.error("Login error");
     }
     final schedule = await client.schoolOnline.getCalendar();
-
     final directory = await getApplicationDocumentsDirectory();
     final calendarFile = await File("${directory.path}/calendar.json")
         .create(recursive: true);
     final calendarJson = Subject.tableToJson(schedule);
     await calendarFile.writeAsString(calendarJson);
-
-    print("data was written $calendarJson");
-
     return schedule;
   }
 
@@ -36,30 +36,46 @@ class Schedule extends WebLoader<List<List<Subject>>> {
       children: [
         Container(
           child: Center(
-              child: Text(
-                  "Normalní rozvrh",
-                  style: TextStyle(
-                      fontSize: 40,
-                      color: Colors.white
-                  )
+            child: Text(
+              "Normalní rozvrh",
+              style: TextStyle(
+                  fontSize: 40,
+                  color: Colors.white
               )
+            )
           ),
         ),
         createSchedule(trimSchedule(schedule)),
         Container(margin: EdgeInsets.all(5)),
         Container(
           child: Center(
-              child: Text(
-                  "Korona rozvrh",
-                  style: TextStyle(
-                      fontSize: 40,
-                      color: Colors.white
-                  )
+            child: Text(
+              "Korona rozvrh",
+              style: TextStyle(
+                  fontSize: 40,
+                  color: Colors.white
               )
+            )
           ),
         ),
-        createSchedule(trimSchedule(createCoronaSchedule(schedule)))
-      ],
+        createSchedule(trimSchedule(createCoronaSchedule(schedule))),
+        Row(
+          children: [
+            Expanded(
+              child: OutlineButton(
+                onPressed: () => createNotifications(false),
+                child: Text('Normální notifikace')
+              )
+            ),
+            Expanded(
+              child: OutlineButton(
+                onPressed: () => createNotifications(true),
+                child: Text('Korona notifikace'),
+              ),
+            )
+          ]
+        ),
+      ]
     );
   }
 
@@ -124,30 +140,26 @@ String parseClass(String classroom) {
 
 TableCell createScheduleCell(Subject subject, bool dvoj) {
   return TableCell(
-      child: Container(
-        decoration: BoxDecoration(
-          border: Border(
-              right: !dvoj ? BorderSide(color: Colors.grey[600]) : BorderSide(color: Colors.transparent)
+    child: Container(
+      decoration: BoxDecoration(
+        border: Border(
+            right: !dvoj ? BorderSide(color: Colors.grey[600]) : BorderSide(color: Colors.transparent)
+        ),
+      ),
+      padding: EdgeInsets.all(5),
+      child: Column(
+        children: [
+          Text(
+            subject?.name ?? "",
+            style: TextStyle(color: Colors.white),
           ),
-        ),
-        padding: EdgeInsets.all(5),
-        child: Column(
-            children: [
-              Text(
-                subject?.name ?? "",
-                style: TextStyle(
-                    color: Colors.white
-                ),
-              ), //??????? - just Tom things
-              Text(
-                parseClass(subject?.classroom ?? "-"),
-                style: TextStyle(
-                    color: Colors.white
-                ),
-              )
-            ]
-        ),
-      )
+          Text(
+            parseClass(subject?.classroom ?? "-"),
+            style: TextStyle(color: Colors.white),
+          )
+        ]
+      ),
+    )
   );
 }
 
@@ -155,15 +167,9 @@ TableRow createScheduleRow(List<Subject> schoolDay) {
   return TableRow(
       children: [
         for(int i = 0; i < schoolDay.length; i++)
-          createScheduleCell(
-              schoolDay[i],
-              (
-                  i < schoolDay.length - 1
-                      && schoolDay[i] != null
-                      && schoolDay[i]?.name == schoolDay[i + 1]?.name
-              )
-                  || i == schoolDay.length - 1
-          ),
+          createScheduleCell(schoolDay[i], (i == schoolDay.length - 1)
+            || (i < schoolDay.length - 1 && schoolDay[i] != null
+                  && schoolDay[i]?.name == schoolDay[i + 1]?.name)),
       ]
   );
 }

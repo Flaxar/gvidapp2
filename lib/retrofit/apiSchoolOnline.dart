@@ -49,9 +49,8 @@ class ApiSchoolOnline {
     final fullName = RegExp(r'\(([^)]*)\)').firstMatch(bothNames).group(1);
     final style = element.parentNode.parentNode.parentNode.attributes['style'];
     final duration = int.parse(RegExp(r'max-width:(\d+)px;').firstMatch(style).group(1));
-    final date = elements[12].substring(0, elements[12].length - 1);
     return Subject(fullName: fullName, name: shortName, teacher: elements[2],
-        classroom: elements[8], date: date, duration: duration~/78);
+        classroom: elements[8], date: elements[12], duration: duration~/78);
   }
 
   // returns 5x10 table of subjects, empty subjects will be null
