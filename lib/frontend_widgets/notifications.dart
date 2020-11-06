@@ -10,18 +10,19 @@ import 'package:path_provider/path_provider.dart';
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin
   = FlutterLocalNotificationsPlugin();
 
+final details = const NotificationDetails(
+  android: AndroidNotificationDetails(
+    'your channel id',
+    'your channel name',
+    'your channel description',
+    channelShowBadge: false,
+    importance: Importance.max,
+    priority: Priority.high,
+    ticker: 'ticker'
+  )
+);
+
 void zonedScheduleNotification(List<String> notification, tz.TZDateTime when, int id) async {
-  final details = const NotificationDetails(
-      android: AndroidNotificationDetails(
-          'your channel id',
-          'your channel name',
-          'your channel description',
-          channelShowBadge: false,
-          importance: Importance.max,
-          priority: Priority.high,
-          ticker: 'ticker'
-      )
-  );
   await flutterLocalNotificationsPlugin.zonedSchedule(
       id,
       notification[0],
@@ -46,8 +47,10 @@ void scheduleWeeksNotifications(List<List<Subject>> scheduleTable) async {
   }
 
   var countId = 0;
+  await flutterLocalNotificationsPlugin.show(countId++, 'GvidApp2 Notifikace',
+      'Do konce týdne dostaneš notifikace o hodinách.', details);
   for(int i = now.weekday; i <= 5; i++) {
-    final dayNotifications = createLessonTimes(i, scheduleTable);
+    final dayNotifications = createLessonTimes(i - 1, scheduleTable);
     for(int j = 0; j < dayNotifications.length; j++) {
       final start = dayNotifications[j][0].split(" - ").first;
       final startHours = int.parse(start.split(":").first);
