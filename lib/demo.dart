@@ -6,10 +6,8 @@ import 'package:gvid_app2/retrofit/restSchoolOnline.dart';
 
 import 'client.dart';
 
-// prvni login nefunguje
 void main() async {
   final client = Client();
-  // FIXME FIXME resetnout prihlasovaci udaje, nez se repozitar zverejni:
   final schoolOnlineLogin = await client.schoolOnline.login('Username', 'Password');
   final iCanteenLogin = await client.iCanteen.login('Username', 'Password');
 

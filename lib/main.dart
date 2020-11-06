@@ -14,7 +14,7 @@ import 'frontend_widgets/notifications.dart';
 import 'package:path_provider/path_provider.dart';
 
 final client = Client();
-
+Widget scheduleWidget;
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await PrefService.init(prefix: 'pref_');
@@ -32,6 +32,7 @@ void main() async {
     await notifications.scheduleWeeksNotifications();
   }
 
+  scheduleWidget = await loadScheduleWidget();
 
   runApp(MyApp());
 }
@@ -116,7 +117,7 @@ class _MyHomePageState extends State<MyHomePage> {
     PageView(
       children: [
         MarksWidget(),
-        Schedule()
+        scheduleWaiter(scheduleWidget),
       ],
     ),
   ];

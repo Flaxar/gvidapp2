@@ -49,6 +49,8 @@ dependencies:
   cached_network_image: ^2.3.3
   url_launcher: ^5.7.8
   intl: ^0.16.1
+  pull_to_refresh: ^1.6.1
+  # background_fetch: ^0.6.0
 
 dev_dependencies:
   flutter_test:

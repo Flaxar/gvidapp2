@@ -1,77 +1,71 @@
 import 'dart:io';
 import 'dart:math';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:gvid_app2/webLoader.dart';
 import 'package:gvid_app2/client.dart';
 import 'package:gvid_app2/retrofit/restSchoolOnline.dart';
 import 'package:preferences/preferences.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:pull_to_refresh/pull_to_refresh.dart';
 
 
 final client = Client();
 
-class Schedule extends WebLoader<List<List<Subject>>> {
-  @override
-  Future<List<List<Subject>>> calculation() async {
-    final hasLogged = await client.schoolOnline.login(PrefService.getString('sol_login'), PrefService.getString('sol_password'));
-    if (!hasLogged) {
-      return Future.error("Login error");
-    }
-    final schedule = await client.schoolOnline.getCalendar();
-
-    final directory = await getApplicationDocumentsDirectory();
-    final calendarFile = await File("${directory.path}/calendar.json")
-        .create(recursive: true);
-    final calendarJson = Subject.tableToJson(schedule);
-    await calendarFile.writeAsString(calendarJson);
-
-    print("data was written $calendarJson");
-
-    return schedule;
+Future<List<List<Subject>>> loadScheduleFromWebAndSaveIt() async {
+  final hasLogged = await client.schoolOnline.login(PrefService.getString('sol_login'), PrefService.getString('sol_password'));
+  if (!hasLogged) {
+    return Future.error("Login error");
   }
+  final schedule = await client.schoolOnline.getCalendar();
+  final directory = await getApplicationDocumentsDirectory();
+  final calendarFile = await File("${directory.path}/calendar.json").create(recursive: true);
+  final calendarJson = Subject.tableToJson(schedule);
+  await calendarFile.writeAsString(calendarJson);
+  return schedule;
+}
 
-  @override
-  Widget success(List<List<Subject>> schedule) {
-    return Column(
-      children: [
-        Container(
-          child: Center(
-              child: Text(
-                  "Normalní rozvrh",
-                  style: TextStyle(
-                      fontSize: 40,
-                      color: Colors.white
-                  )
-              )
-          ),
+Future<List<List<Subject>>> loadScheduleData() async {
+  final directory = await getApplicationDocumentsDirectory();
+  final calendarFile = await File("${directory.path}/calendar.json").create(recursive: true);
+  final calendarSaved = await calendarFile.readAsString();
+  if (calendarSaved.isEmpty) {
+    return await loadScheduleFromWebAndSaveIt();
+  }
+  final calendarArray = Subject.tableFromJson(calendarSaved);
+  return calendarArray;
+}
+
+Future<Widget> loadScheduleWidget() async {
+  final data = await loadScheduleData();
+  return Column(
+    children: [
+      Container(
+        child: Center(
+            child: Text(
+                "Normalní rozvrh",
+                style: TextStyle(
+                    fontSize: 40,
+                    color: Colors.white
+                )
+            )
         ),
-        createSchedule(trimSchedule(schedule)),
-        Container(margin: EdgeInsets.all(5)),
-        Container(
-          child: Center(
-              child: Text(
-                  "Korona rozvrh",
-                  style: TextStyle(
-                      fontSize: 40,
-                      color: Colors.white
-                  )
-              )
-          ),
+      ),
+      createSchedule(trimSchedule(data)),
+      Container(margin: EdgeInsets.all(5)),
+      Container(
+        child: Center(
+            child: Text(
+                "Korona rozvrh",
+                style: TextStyle(
+                    fontSize: 40,
+                    color: Colors.white
+                )
+            )
         ),
-        createSchedule(trimSchedule(createCoronaSchedule(schedule)))
-      ],
-    );
-  }
-
-  @override
-  Widget waiting() {
-    return createLoadingCircle('Loading schedule');
-  }
-
-  @override
-  Widget failure() {
-    return createErrorText('School Online Error');
-  }
+      ),
+      createSchedule(trimSchedule(createCoronaSchedule(data)))
+    ],
+  );
 }
 
 List<List<Subject>> trimSchedule(List<List<Subject>> schedule) {
@@ -178,5 +172,60 @@ Widget createSchedule(List<List<Subject>> schedule) {
       for(int i = 0; i < 5; i++)
         createScheduleRow(schedule[i]),
     ],
+  );
+}
+
+RefreshController _refreshController = RefreshController(initialRefresh: false);
+
+void _onRefresh() async{
+  // monitor network fetch
+  await Future.delayed(Duration(milliseconds: 1000));
+  // if failed, use refreshFailed()
+  _refreshController.refreshCompleted();
+}
+
+void _onLoading() async{
+  // monitor network fetch
+  await Future.delayed(Duration(milliseconds: 1000));
+  // if failed,use loadFailed(),if no data return,use LoadNodata()
+  //items.add((items.length+1).toString());
+  _refreshController.loadComplete();
+}
+
+Widget scheduleWaiter(Widget inside) {
+  return Scaffold(
+    body: SmartRefresher(
+      enablePullDown: true,
+      enablePullUp: false,
+      header: ClassicHeader(),
+      footer: CustomFooter(
+        builder: (BuildContext context,LoadStatus mode) {
+          Widget body;
+          if(mode == LoadStatus.idle){
+            body = Text("pull up load");
+          }
+          else if(mode == LoadStatus.loading) {
+            body = CupertinoActivityIndicator();
+          }
+          else if(mode == LoadStatus.failed) {
+            body = Text("Load Failed! Click retry!");
+          }
+          else if(mode == LoadStatus.canLoading) {
+            body = Text("release to load more");
+          }
+          else {
+            body = Text("No more Data");
+          }
+          return Container(
+            height: 55.0,
+            child: Center(child: body),
+          );
+        },
+      ),
+      controller: _refreshController,
+      onRefresh: _onRefresh,
+      onLoading: _onLoading,
+      child: inside,
+    ),
   );
 }
