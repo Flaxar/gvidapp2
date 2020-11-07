@@ -56,7 +56,6 @@ class ApiSchoolOnline {
   // returns 5x10 table of subjects, empty subjects will be null
   // WARNING: costly operation, user should not call this operation often
   Future<List<List<Subject>>> getCalendar() async {
-    print('I want calendar now!');
     final data = await restSchoolOnline.getCalendar();
     final table = parse(data).getElementById('CCADynamicCalendarTable');
     final subjects = table.getElementsByClassName('DctInnerTableType10DataTD')

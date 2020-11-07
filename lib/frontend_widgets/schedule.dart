@@ -1,19 +1,18 @@
-import 'dart:io';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:gvid_app2/webLoader.dart';
 import 'package:gvid_app2/client.dart';
 import 'package:gvid_app2/retrofit/restSchoolOnline.dart';
 import 'package:preferences/preferences.dart';
-import 'package:path_provider/path_provider.dart';
 
 import 'notifications.dart';
 
 final client = Client();
+final filename = "schedule.json";
 
 class Schedule extends WebLoader<List<List<Subject>>> {
   @override
-  Future<List<List<Subject>>> calculation() async {
+  Future<List<List<Subject>>> download() async {
     final hasLogged = await client.schoolOnline.login(
         PrefService.getString('sol_login'),
         PrefService.getString('sol_password')
@@ -22,12 +21,14 @@ class Schedule extends WebLoader<List<List<Subject>>> {
       return Future.error("Login error");
     }
     final schedule = await client.schoolOnline.getCalendar();
-    final directory = await getApplicationDocumentsDirectory();
-    final calendarFile = await File("${directory.path}/calendar.json")
-        .create(recursive: true);
-    final calendarJson = Subject.tableToJson(schedule);
-    await calendarFile.writeAsString(calendarJson);
+    saveToFile(filename, Subject.tableToJson(schedule));
     return schedule;
+  }
+
+  @override
+  Future<List<List<Subject>>> load() async {
+    final schedule = await loadFromFile(filename);
+    return (schedule.isNotEmpty) ? Subject.tableFromJson(schedule) : download();
   }
 
   @override

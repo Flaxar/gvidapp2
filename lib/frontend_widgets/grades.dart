@@ -6,16 +6,27 @@ import 'package:gvid_app2/retrofit/restSchoolOnline.dart';
 import 'package:preferences/preferences.dart';
 
 final client = Client();
+final filename = "grades.json";
 
 class MarksWidget extends WebLoader<List<Mark>> {
   @override
-  Future<List<Mark>> calculation() async {
-    final hasLogged = await client.schoolOnline.login(PrefService.getString('sol_login'), PrefService.getString('sol_password'));
+  Future<List<Mark>> download() async {
+    final hasLogged = await client.schoolOnline.login(
+        PrefService.getString('sol_login'),
+        PrefService.getString('sol_password')
+    );
     if (!hasLogged) {
       return Future.error("Wrong password");
     }
     final marks = await client.schoolOnline.getMarksDetailed();
+    saveToFile(filename, Mark.listToJson(marks));
     return marks;
+  }
+
+  @override
+  Future<List<Mark>> load() async {
+    final marks = await loadFromFile(filename);
+    return (marks.isNotEmpty) ? Mark.listFromJson(marks) : download();
   }
 
   @override

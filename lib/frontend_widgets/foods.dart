@@ -6,19 +6,31 @@ import 'package:gvid_app2/retrofit/restICanteen.dart';
 import 'package:preferences/preferences.dart';
 
 final client = Client();
+final filename = "foods.json";
 
 class Foods extends WebLoader<List<FoodOffer>> {
-  Future<List<FoodOffer>> calculation() async {
+  Future<List<FoodOffer>> download() async {
     await client.iCanteen.login(PrefService.getString('food_login'), PrefService.getString('food_password'));
-    // if not logged, load default week
+
+    List<FoodOffer> foodWeek;
     if (!client.iCanteen.hasLogged) {
-      return client.iCanteen.getWeek();
+      // if not logged, load default week
+      foodWeek = await client.iCanteen.getWeek();
     }
-    final foodOfferArray = List<FoodOffer>();
-    for(final day in getWeekdays()) {
-      foodOfferArray.add(await client.iCanteen.getDay(day));
+    else {
+      // load week with individual orders
+      foodWeek = List<FoodOffer>();
+      for (final day in getWeekdays()) {
+        foodWeek.add(await client.iCanteen.getDay(day));
+      }
     }
-    return foodOfferArray;
+    saveToFile(filename, FoodOffer.listToJson(foodWeek));
+    return foodWeek;
+  }
+
+  Future<List<FoodOffer>> load() async {
+    final foodOffers = await loadFromFile(filename);
+    return (foodOffers.isNotEmpty) ? FoodOffer.listFromJson(foodOffers) : download();
   }
 
   Widget success(List<FoodOffer> offers) {

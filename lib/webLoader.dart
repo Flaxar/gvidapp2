@@ -1,5 +1,8 @@
+import 'dart:io';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 
 // webLoader is a widget that is used for async and network functions
@@ -7,8 +10,11 @@ import 'package:pull_to_refresh/pull_to_refresh.dart';
 abstract class WebLoader<T> extends StatefulWidget {
   WebLoader({Key key}) : super(key: key);
 
-  // async function to download data
-  Future<T> calculation();
+  // async function to download NEW data from web (do not use function load!)
+  Future<T> download();
+
+  // async function to load SAVED data (can use function download)
+  Future<T> load();
 
   // widget builder, construct result based on downloaded data
   Widget success(T data);
@@ -18,6 +24,21 @@ abstract class WebLoader<T> extends StatefulWidget {
 
   // widget displayed after error (wrong password, no internet, etc)
   Widget failure();
+
+  // simple function that will save any text to specified file
+  void saveToFile(String filename, String text) async {
+    final directory = await getApplicationDocumentsDirectory();
+    final file = await File("${directory.path}/$filename").create(recursive: true);
+    await file.writeAsString(text);
+  }
+
+  // simple function that will load any text from specified file
+  // returns empty string if nothing was loaded or the file was just created
+  Future<String> loadFromFile(String filename) async {
+    final directory = await getApplicationDocumentsDirectory();
+    final file = await File("${directory.path}/$filename").create(recursive: true);
+    return await file.readAsString();
+  }
 
   @override
   _WebLoaderState<T> createState() => _WebLoaderState();
@@ -29,7 +50,7 @@ class _WebLoaderState<S> extends State<WebLoader<S>> {
 
   Widget createFutureBuilder() {
     return FutureBuilder<S>(
-      future: this.widget.calculation(),
+      future: this.widget.load(),
       builder: (BuildContext context, AsyncSnapshot<S> snapshot) {
         if (snapshot.hasData) {
           data = snapshot.data;
@@ -46,9 +67,8 @@ class _WebLoaderState<S> extends State<WebLoader<S>> {
   }
 
   void _onRefresh() async{
-    /*try {
-      S someData = await this.widget.calculation();
-      print(someData);
+    try {
+      S someData = await this.widget.download();
       setState(() {
         data = someData;
       });
@@ -56,7 +76,7 @@ class _WebLoaderState<S> extends State<WebLoader<S>> {
     } catch (e) {
       print(e);
       _refreshController.refreshFailed();
-    }*/
+    }
     // monitor network fetch
     await Future.delayed(Duration(milliseconds: 1000));
     // if failed,use refreshFailed()
