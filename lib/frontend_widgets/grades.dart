@@ -31,27 +31,24 @@ class MarksWidget extends WebLoader<List<Mark>> {
 
   @override
   Widget success(List<Mark> marks) {
-    return SingleChildScrollView(
-      key: PageStorageKey('znamky'),
-      child: Column(
-        children: [
-          Table(
-            border: TableBorder(
-                horizontalInside: BorderSide(width: 1, color: Colors.grey[800])
-            ),
-            columnWidths: {
-              0: FlexColumnWidth(45),
-              1: FlexColumnWidth(100),
-              2: FlexColumnWidth(120),
-              3: FlexColumnWidth(15)
-            },
-            children: [
-              for(final mark in marks)
-                createTableRow(mark),
-            ],
+    return Column(
+      children: [
+        Table(
+          border: TableBorder(
+              horizontalInside: BorderSide(width: 1, color: Colors.grey[800])
           ),
-        ],
-      ),
+          columnWidths: {
+            0: FlexColumnWidth(45),
+            1: FlexColumnWidth(100),
+            2: FlexColumnWidth(120),
+            3: FlexColumnWidth(15)
+          },
+          children: [
+            for(final mark in marks)
+              createTableRow(mark),
+          ],
+        ),
+      ],
     );
   }
 

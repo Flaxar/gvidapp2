@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:gvid_app2/main.dart';
 import 'package:gvid_app2/webLoader.dart';
 import 'package:gvid_app2/client.dart';
 import 'package:gvid_app2/retrofit/restICanteen.dart';
@@ -45,13 +44,7 @@ class Foods extends WebLoader<List<FoodOffer>> {
       }
     }
     // empty listview with shrinkWrap set to true trows an error
-    return (list.isEmpty) ? ListView() : ListView(
-      shrinkWrap: true,
-      children: [
-        addVerticalMargin(5),
-        Column(children: list)
-      ]
-    );
+    return Column(children: list);
   }
 
   @override

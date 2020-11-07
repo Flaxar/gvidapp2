@@ -38,7 +38,7 @@ class Schedule extends WebLoader<List<List<Subject>>> {
         Container(
           child: Center(
             child: Text(
-              "Normalní rozvrh",
+              "Normální rozvrh",
               style: TextStyle(
                   fontSize: 40,
                   color: Colors.white
